@@ -1,5 +1,6 @@
 import tkinter as tk
 import time
+import queue
 from tkinter import *
 from tkinter import filedialog
 from tkinter import ttk
@@ -26,21 +27,28 @@ def find_neighbors(maze, row, col):
         neighbors.append((row, col + 1))
     return neighbors
 
-
-
-def find_path_dfs(maze, canvas):
+def find_path(maze, canvas, algorithm):
     start = "O"
     end = "X"
     start_pos = find_start(maze, start)
 
-    stack = []
-    stack.append((start_pos, [start_pos]))
+    if algorithm == "DFS":
+        stack = [(start_pos, [start_pos])]
+        data_structure = stack
+    elif algorithm == "BFS":
+        queue_obj = queue.Queue()
+        queue_obj.put((start_pos, [start_pos]))
+        data_structure = queue_obj
 
     visited = set()
     step_counter = 0
 
-    while len(stack) > 0:
-        current_pos, path = stack.pop()
+    while data_structure:
+        if algorithm == "DFS":
+            current_pos, path = data_structure.pop()
+        elif algorithm == "BFS":
+            current_pos, path = data_structure.get()
+
         row, col = current_pos
 
         canvas.delete("all")
@@ -50,13 +58,13 @@ def find_path_dfs(maze, canvas):
                 canvas.create_rectangle(j * 20, i * 20, (j + 1) * 20, (i + 1) * 20, fill=color)
                 if (i, j) in path:
                     canvas.create_text((j * 20) + 10, (i * 20) + 10, text="X", fill="green")
-
+        
         canvas.update()
         time.sleep(0.2)
 
         if maze[row][col] == end:
             return path, step_counter
-
+        
         neighbors = find_neighbors(maze, row, col)
         for neighbor in neighbors:
             if neighbor in visited:
@@ -67,33 +75,39 @@ def find_path_dfs(maze, canvas):
                 continue
 
             new_path = path + [neighbor]
-            stack.append((neighbor, new_path))
+            data_structure.put((neighbor, new_path)) if algorithm == "BFS" else data_structure.append((neighbor, new_path))
             visited.add(neighbor)
-
+        
         step_counter += 1
 
-def start_algorithm(content):
+def start_algorithm(content, canvas, algorithm):
+    canvas.delete("all")  # Clear canvas before starting a new maze drawing
     maze = read_maze(content)
+    path, step_counter = find_path(maze, canvas, algorithm)
+    print(f"{algorithm} Steps:", step_counter)  # You can display this in a label or messagebox if needed
 
-    canvas = tk.Canvas(root, width=len(maze[0]) * 20, height=len(maze) * 20)
-    canvas.delete("all")
-    canvas.pack()
-
-    path, step_counter = find_path_dfs(maze, canvas)
-    print("Steps:", step_counter)  # You can display this in a label or messagebox if needed
-
-def read_file():
+def read_file(canvas, algorithm):
     file_path = filedialog.askopenfilename()
     if file_path:
         with open(file_path, 'r') as file:
             content = file.read()
-            start_algorithm(content)
+            start_algorithm(content, canvas, algorithm)
 
 root = tk.Tk()
-root.title("Maze solver")
+root.title("Maze Solver")
 root.geometry("500x500")
 
-start_button = tk.Button(root, text="Select File", command=read_file)
-start_button.pack()
+canvas = tk.Canvas(root, width=400, height=400)
+canvas.pack()
+
+dfs_button = tk.Button(root, 
+                       text="Select File (DFS)", 
+                       command=lambda: read_file(canvas, "DFS"))
+dfs_button.pack()
+
+bfs_button = tk.Button(root, 
+                       text="Select File (BFS)", 
+                       command=lambda: read_file(canvas, "BFS"))
+bfs_button.pack()
 
 root.mainloop()
