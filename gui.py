@@ -90,7 +90,8 @@ def read_file():
             start_algorithm(content)
 
 root = tk.Tk()
-root.geometry("400x400")
+root.title("Maze solver")
+root.geometry("500x500")
 
 start_button = tk.Button(root, text="Select File", command=read_file)
 start_button.pack()
