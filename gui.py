@@ -27,7 +27,14 @@ def find_neighbors(maze, row, col):
         neighbors.append((row, col + 1))
     return neighbors
 
-def find_path(maze, canvas, algorithm):
+import tkinter as tk
+from tkinter import filedialog
+import time
+import queue
+
+# ... (previous code remains the same)
+
+def find_path(maze, canvas, algorithm, step_label):
     start = "O"
     end = "X"
     start_pos = find_start(maze, start)
@@ -63,6 +70,7 @@ def find_path(maze, canvas, algorithm):
         time.sleep(0.2)
 
         if maze[row][col] == end:
+            step_label.config(text=f"{algorithm} Steps: {step_counter}")
             return path, step_counter
         
         neighbors = find_neighbors(maze, row, col)
@@ -80,34 +88,32 @@ def find_path(maze, canvas, algorithm):
         
         step_counter += 1
 
-def start_algorithm(content, canvas, algorithm):
+def start_algorithm(content, canvas, algorithm, step_label):
     canvas.delete("all")  # Clear canvas before starting a new maze drawing
     maze = read_maze(content)
-    path, step_counter = find_path(maze, canvas, algorithm)
-    print(f"{algorithm} Steps:", step_counter)  # You can display this in a label or messagebox if needed
+    path, step_counter = find_path(maze, canvas, algorithm, step_label)
 
-def read_file(canvas, algorithm):
+def read_file(canvas, algorithm, step_label):
     file_path = filedialog.askopenfilename()
     if file_path:
         with open(file_path, 'r') as file:
             content = file.read()
-            start_algorithm(content, canvas, algorithm)
+            start_algorithm(content, canvas, algorithm, step_label)
 
 root = tk.Tk()
 root.title("Maze Solver")
-root.geometry("500x500")
+root.geometry("500x550")  # Increased height to accommodate the step label
 
 canvas = tk.Canvas(root, width=400, height=400)
 canvas.pack()
 
-dfs_button = tk.Button(root, 
-                       text="Select File (DFS)", 
-                       command=lambda: read_file(canvas, "DFS"))
+step_label = tk.Label(root, text="", fg="black")
+step_label.pack()
+
+dfs_button = tk.Button(root, text="Select File (DFS)", command=lambda: read_file(canvas, "DFS", step_label))
 dfs_button.pack()
 
-bfs_button = tk.Button(root, 
-                       text="Select File (BFS)", 
-                       command=lambda: read_file(canvas, "BFS"))
+bfs_button = tk.Button(root, text="Select File (BFS)", command=lambda: read_file(canvas, "BFS", step_label))
 bfs_button.pack()
 
 root.mainloop()
