@@ -1,40 +1,47 @@
 import tkinter as tk
 import time
 import queue
+import pygame
+
 from tkinter import PhotoImage, filedialog
 from tkinter import ttk
-
 from maze_generator import MazeGenerator
 
 class GUIapp(tk.Frame):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
+        self.parent.configure(background="#fdf0d5")
         self.create_widgets()
 
+        pygame.mixer.init()
+        pygame.mixer.music.load("mii_music.mp3")
+        pygame.mixer.music.play(-1)   
+
     def create_widgets(self):
-        canvas = tk.Canvas(self.parent, width=400, height=400)
-        canvas.place(relx=0.1, rely=0.1, anchor=tk.NW)
+        self.parent.update()
+        canvas = tk.Canvas(self.parent, width=400, height=400, background="#fdf0d5", highlightthickness=0)
+        canvas.place(x=self.parent.winfo_width() // 2, rely=0.2, anchor=tk.N)
 
         img = PhotoImage(file="68m.png")
         root.iconphoto(False, img)
 
-        step_label = tk.Label(self.parent, text="", fg="black")
+        step_label = tk.Label(self.parent, text="", fg="black", background="#fdf0d5", font="Helvicta")
         step_label.pack()
 
         self.maze_generator_frame = tk.Frame(self.parent)
         self.maze_generator_frame.pack()
 
-        algorithm_frame = tk.Frame(self.parent)
+        algorithm_frame = tk.Frame(self.parent, background="#fdf0d5")
         algorithm_frame.place(relx=0.5, rely=0.95, anchor="s")
 
-        dfs_button = tk.Button(algorithm_frame, height=3, width=18, background="SeaGreen1", font="Helvicta", text="Depth First Search", command=lambda: self.read_file(canvas, "DFS", step_label))
+        dfs_button = tk.Button(algorithm_frame, height=3, width=18, activeforeground="white", background="#669bbc", activebackground="#003049", font="Helvicta", text="Depth First Search", command=lambda: self.read_file(canvas, "DFS", step_label))
         dfs_button.pack(side=tk.LEFT, padx=10, pady=10)
 
-        bfs_button = tk.Button(algorithm_frame, height=3, width=18, background="SeaGreen1", font="Helvicta", text="Breadth First Search", command=lambda: self.read_file(canvas, "BFS", step_label))
+        bfs_button = tk.Button(algorithm_frame, height=3, width=18, activeforeground="white", background="#669bbc", activebackground="#003049", font="Helvicta", text="Breadth First Search", command=lambda: self.read_file(canvas, "BFS", step_label))
         bfs_button.pack(side=tk.LEFT, padx=10, pady=10)
 
-        gen_button = tk.Button(algorithm_frame, height=3, width=18, background="SeaGreen1", font="Helvicta", text="Generate Maze", command=self.generate_maze)
+        gen_button = tk.Button(algorithm_frame, height=3, width=18, activeforeground="white", background="#669bbc", activebackground="#003049", font="Helvicta", text="Generate Maze", command=self.generate_maze)
         gen_button.pack(side=tk.LEFT, padx=10, pady=10)
     
     def generate_maze(self):
@@ -94,11 +101,20 @@ class GUIapp(tk.Frame):
             canvas.delete("all")
             for i, row_vals in enumerate(maze):
                 for j, value in enumerate(row_vals):
-                    color = "red" if value == "#" else "white"
+                    color = "#c1121f" if value == "#" else "white"
                     canvas.create_rectangle(j * 20, i * 20, (j + 1) * 20, (i + 1) * 20, fill=color)
                     if (i, j) in path:
                         canvas.create_text((j * 20) + 10, (i * 20) + 10, text="X", fill="green")
             
+            # Calculate the size of the canvas based on the size of the maze
+            canvas.config(width=(j + 1) * 20, height=(i + 1) * 20)
+
+            # Force tkinter to calculate the new size of the canvas
+            canvas.update()
+
+            # Reposition the canvas at the top center of the window
+            canvas.place(x=self.parent.winfo_width() // 2, anchor=tk.N)
+
             canvas.update()
             time.sleep(0.2)
 
@@ -136,10 +152,10 @@ class GUIapp(tk.Frame):
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("Maze Solver")
-    root.geometry("1000x1000")  # Increased height to accommodate the step label
+    root.geometry("750x750")  # Increased height to accommodate the step label
     root.resizable(False, False)
 
     app = GUIapp(root)
-    app.pack()  # Don't forget to pack the Frame or Grid it as needed
+    app.pack()
 
     root.mainloop()
