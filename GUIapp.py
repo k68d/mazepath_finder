@@ -1,7 +1,7 @@
 import tkinter as tk
 import time
 import queue
-from tkinter import filedialog
+from tkinter import PhotoImage, filedialog
 from tkinter import ttk
 
 from maze_generator import MazeGenerator
@@ -16,6 +16,9 @@ class GUIapp(tk.Frame):
         canvas = tk.Canvas(self.parent, width=400, height=400)
         canvas.place(relx=0.1, rely=0.1, anchor=tk.NW)
 
+        img = PhotoImage(file="68m.png")
+        root.iconphoto(False, img)
+
         step_label = tk.Label(self.parent, text="", fg="black")
         step_label.pack()
 
@@ -25,13 +28,13 @@ class GUIapp(tk.Frame):
         algorithm_frame = tk.Frame(self.parent)
         algorithm_frame.place(relx=0.5, rely=0.95, anchor="s")
 
-        dfs_button = tk.Button(algorithm_frame, height=3, width=15, background="SkyBlue", text="Depth First Search", command=lambda: self.read_file(canvas, "DFS", step_label))
+        dfs_button = tk.Button(algorithm_frame, height=3, width=18, background="SeaGreen1", font="Helvicta", text="Depth First Search", command=lambda: self.read_file(canvas, "DFS", step_label))
         dfs_button.pack(side=tk.LEFT, padx=10, pady=10)
 
-        bfs_button = tk.Button(algorithm_frame, height=3, width=15, background="cyan", text="Breadth First Search", command=lambda: self.read_file(canvas, "BFS", step_label))
+        bfs_button = tk.Button(algorithm_frame, height=3, width=18, background="SeaGreen1", font="Helvicta", text="Breadth First Search", command=lambda: self.read_file(canvas, "BFS", step_label))
         bfs_button.pack(side=tk.LEFT, padx=10, pady=10)
 
-        gen_button = tk.Button(algorithm_frame, height=3, width=15, background="cyan", text="Generate Maze", command=self.generate_maze)
+        gen_button = tk.Button(algorithm_frame, height=3, width=18, background="SeaGreen1", font="Helvicta", text="Generate Maze", command=self.generate_maze)
         gen_button.pack(side=tk.LEFT, padx=10, pady=10)
     
     def generate_maze(self):
